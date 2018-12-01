@@ -41,6 +41,8 @@ import android.graphics.Bitmap
 import java.io.IOException
 import android.content.ContextWrapper
 import android.graphics.Matrix
+import android.os.Build
+import android.view.WindowManager
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.ViewModelProviders
 import com.softllc.freeze.utilities.InjectorUtils
@@ -63,6 +65,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
+            //val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            //keyguardManager.requestDismissKeyguard(this, null)
+        } else {
+            this.window.addFlags(
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+        }
 
         val factory = InjectorUtils.providePhotoViewModelFactory(this, "new")
         photoViewModel = ViewModelProviders.of(this, factory)
