@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">freeze</string>
+    <string name="navigation_drawer_header_title" translatable="false">Freeze</string>
+
+    <string name="navigation_drawer_header_content_description" translation_description="Content description for the image that is shown at the top of the navigation drawer.">Navigation drawer header logo</string>
+
+</resources>
