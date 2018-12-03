@@ -65,7 +65,7 @@ class PhotoFragment : Fragment() {
         val binding = FragmentFreezeBinding.inflate(inflater, container, false)
         binding.hasPlantings = false
 
-        binding.imageView.orientation = ORIENTATION_90
+        binding.imageView.orientation = ORIENTATION_USE_EXIF
         binding.imageView.maxScale = 40f
         photoViewModel?.photo?.observe(this, Observer { photo ->
 

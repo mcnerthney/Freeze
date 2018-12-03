@@ -16,42 +16,35 @@
 
 package com.softllc.freeze
 
-import android.app.Activity
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import androidx.navigation.R.attr.uri
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.softllc.freeze.databinding.ActivityMainBinding
 import kotlinx.android.synthetic.main.activity_main.*
-import android.graphics.Bitmap
-import java.io.IOException
 import android.content.ContextWrapper
-import android.graphics.Matrix
+import android.content.pm.ActivityInfo
 import android.os.Build
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.WindowManager
-import androidx.exifinterface.media.ExifInterface
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.softllc.freeze.utilities.InjectorUtils
 import com.softllc.freeze.utilities.runOnIoThread
-import java.io.File
-import java.io.FileOutputStream
-import java.util.Collections.rotate
-
-
+import java.io.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -66,6 +59,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
@@ -78,6 +73,7 @@ class MainActivity : AppCompatActivity() {
                     WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
         }
 
+
         val factory = InjectorUtils.providePhotoViewModelFactory(this, "new")
         photoViewModel = ViewModelProviders.of(this, factory)
             .get(PhotoViewModel::class.java)
@@ -86,8 +82,6 @@ class MainActivity : AppCompatActivity() {
             this,
             R.layout.activity_main
         )
-        // drawerLayout = binding.drawerLayout
-
         navController = Navigation.findNavController(this, R.id.freeze_nav_fragment)
         appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
 
@@ -101,11 +95,25 @@ class MainActivity : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.add_photo -> launchGallery()
             }
-            menuItem.isChecked = true
             drawerLayout.closeDrawer(Gravity.LEFT)
             true
         }
+
+
+        FreezeApp.locked.observe(this,  Observer { locked ->
+            when (locked ) {
+                true -> appbar.visibility = GONE
+                false -> appbar.visibility = VISIBLE
+            }
+        })
     }
+    private fun launchCamera () {
+        val camIntent = Intent("android.media.action.IMAGE_CAPTURE");
+        camIntent.setComponent(ComponentName("com.sec.android.app.camera", "com.sec.android.app.camera.Camera"));
+        startActivity(camIntent);
+
+    }
+
 
     private fun launchGallery() {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
@@ -118,15 +126,22 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun loadBitmap ( data: Intent) {
+    private fun cachePicture (data: Intent) {
         runOnIoThread {
             val selectedImage = data.data
 
             // method 1
             try {
-                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedImage)
-                val rotate = getOrientation(this, selectedImage)
-                photoViewModel.setImageURI(saveToInternalStorage(bitmap))
+                val inputStream = contentResolver.openInputStream(selectedImage)
+                val cw = ContextWrapper(applicationContext)
+                val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
+                // Create imageDir
+                val mypath = File(directory, "profile.jpg")
+
+                val fos = FileOutputStream(mypath)
+                copy(inputStream, fos)
+
+                photoViewModel.setImageURI(mypath.absolutePath)
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -134,100 +149,39 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    fun getOrientation(context: Context, photoUri: Uri): Int {
-        /* it's on the external media. */
-        val cursor = context.contentResolver.query(
-            photoUri,
-            arrayOf(MediaStore.Images.ImageColumns.ORIENTATION), null, null, null
-        )
-
-        if (cursor!!.count !== 1) {
-            return -1
-        }
-
-        cursor!!.moveToFirst()
-        return cursor.getInt(0)
-    }
-    @Throws(IOException::class)
-    fun modifyOrientation(bitmap: Bitmap, image_absolute_path: String): Bitmap {
-        val ei = ExifInterface(image_absolute_path)
-        val orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-
-        when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> return rotate(bitmap, 90f)
-
-            ExifInterface.ORIENTATION_ROTATE_180 -> return rotate(bitmap, 180f)
-
-            ExifInterface.ORIENTATION_ROTATE_270 -> return rotate(bitmap, 270f)
-
-            ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> return flip(bitmap, true, false)
-
-            ExifInterface.ORIENTATION_FLIP_VERTICAL -> return flip(bitmap, false, true)
-
-            else -> return bitmap
-        }
-    }
-
-    fun rotate(bitmap: Bitmap, degrees: Float): Bitmap {
-        val matrix = Matrix()
-        matrix.postRotate(degrees)
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-    }
-
-    fun flip(bitmap: Bitmap, horizontal: Boolean, vertical: Boolean): Bitmap {
-        val matrix = Matrix()
-        matrix.preScale(if (horizontal) -1f else 1f, if (vertical) -1f else 1f)
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-    }
-    private fun saveToInternalStorage(bitmapImage: Bitmap): String {
-        val cw = ContextWrapper(applicationContext)
-        val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
-        // Create imageDir
-        val mypath = File(directory, "profile.jpg")
-
-        var fos: FileOutputStream? = null
+    fun copy(instream: InputStream, out: OutputStream) {
         try {
-            fos = FileOutputStream(mypath)
-            // Use the compress method on the BitMap object to write image to the OutputStream
-            bitmapImage.compress(Bitmap.CompressFormat.PNG, 100, fos)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            try {
-                fos!!.close()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
 
+            try {
+                // Transfer bytes from in to out
+                val buf = ByteArray(1024)
+                var len = instream.read(buf)
+                while (len > 0) {
+                    out.write(buf, 0, len)
+                    len = instream.read(buf)
+                }
+            } finally {
+                out.close()
+            }
+        } finally {
+            instream.close()
         }
-        return mypath.absolutePath
     }
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+
+
+     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
 
         if (requestCode == REQUEST_GET_SINGLE_FILE) {
             if (resultCode == RESULT_OK) {
                 if (intent != null && data != null) {
 
-                    loadBitmap(data)
+                    cachePicture(data)
 
-                    //val imageUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                    //)// Which columns to return
-                    // Which rows to return (all rows)
-
-                    //Log.i("Images Count", " count=" + cur!!.count)
-                    //val imgPath = StorageUtil.imageGetPath(getActivity(), selectedImage);
-                    //Log.d("TESTPATH", String.valueOf(imgPath));
-                    //Picasso.with(context).load(selectedImage).into(imgSelectAvatar);
-                    //filePath = imgPath;
-                }
+                 }
             }
             super.onActivityResult(requestCode, resultCode, data)
         }
-
-    }
-
-    private fun useImage(uri: Uri?) {
 
     }
 
@@ -243,3 +197,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
+
