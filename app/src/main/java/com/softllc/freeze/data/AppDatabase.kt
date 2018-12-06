@@ -2,6 +2,7 @@
 package com.softllc.freeze.data
 
 import android.content.Context
+import android.content.ContextWrapper
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -15,7 +16,7 @@ import com.softllc.freeze.SeedDatabaseWorker
 /**
  * The Room database for this app
  */
-@Database(entities = [Photo::class], version = 4, exportSchema = false)
+@Database(entities = [Photo::class], version = 8, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun photoDao(): PhotoDao
 
@@ -38,6 +39,11 @@ abstract class AppDatabase : RoomDatabase() {
                     .addCallback(object : RoomDatabase.Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
+
+                            val cw = ContextWrapper(context)
+                            val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
+                            directory.delete()
+
                             val request = OneTimeWorkRequestBuilder<SeedDatabaseWorker>().build()
                             WorkManager.getInstance().enqueue(request)
                         }

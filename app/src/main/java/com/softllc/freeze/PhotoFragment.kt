@@ -16,33 +16,28 @@
 
 package com.softllc.freeze
 
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.graphics.PointF
-import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
-import androidx.core.content.res.ResourcesCompat.getDrawable
-import androidx.core.content.res.ResourcesCompat.getDrawableForDensity
+import android.view.*
+import androidx.core.app.ShareCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.NavDirections
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.davemorrissey.labs.subscaleview.ImageSource
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.ORIENTATION_90
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.ORIENTATION_USE_EXIF
 import com.softllc.freeze.data.Photo
-import com.softllc.freeze.databinding.FragmentFreezeBinding
+import com.softllc.freeze.databinding.FragmentPhotoBinding
 import com.softllc.freeze.utilities.InjectorUtils
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_freeze.*
+import kotlinx.android.synthetic.main.fragment_photo.*
 import java.io.File
-import java.io.FileInputStream
 
 class PhotoFragment : Fragment() {
 
@@ -53,24 +48,27 @@ class PhotoFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val photoId = PhotoFragmentArgs.fromBundle(arguments).photoId
 
         Log.d("djm", "photofragment oncreateview")
         val activity = requireActivity()
-        val factory = InjectorUtils.providePhotoViewModelFactory(activity, "new")
-        photoViewModel = ViewModelProviders.of(activity, factory)
+        val factory = InjectorUtils.providePhotoViewModelFactory(activity, photoId)
+        photoViewModel = ViewModelProviders.of(this, factory)
             .get(PhotoViewModel::class.java)
 
 
 
-        val binding = FragmentFreezeBinding.inflate(inflater, container, false)
+        val binding = FragmentPhotoBinding.inflate(inflater, container, false)
         binding.hasPlantings = false
 
         binding.imageView.orientation = ORIENTATION_USE_EXIF
         binding.imageView.maxScale = 40f
         photoViewModel?.photo?.observe(this, Observer { photo ->
 
-            binding.imageView.setImage(ImageSource.uri(photo.imageUrl))
-            binding.imageView.setScaleAndCenter(photo.zoom, PointF(photo.scrollX, photo.scrollY))
+            if ( photo != null ) {
+                binding.imageView.setImage(ImageSource.uri(photo.imageUrl))
+                binding.imageView.setScaleAndCenter(photo.zoom, PointF(photo.scrollX, photo.scrollY))
+            }
 
             //binding.imageView.setScrollPosition(photo.scrollX, photo.scrollY)
             //binding.imageView.setZoom(photo.zoom)
@@ -81,25 +79,53 @@ class PhotoFragment : Fragment() {
         // val fis = FileInputStream(File(localUri.path))
         //binding.imageView.setImageURI(Uri.fromFile(File("/data/user/0/com.softllc.freeze/app_imageDir/profile.jpg")))
         //binding.imageView.maxZoom = 10.0f
+        setHasOptionsMenu(true)
 
         return binding.root
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        inflater?.inflate(R.menu.menu_photo, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+
+    @Suppress("DEPRECATION")
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return when (item?.itemId) {
+            R.id.action_delete -> {
+               if ( photoViewModel?.photo?.value != null ) {
+                   val cw = ContextWrapper(activity)
+                   val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
+                   // Create imageDir
+                   val mypath = File(directory, photoViewModel?.photo?.value?.imageUrl)
+                   mypath.delete()
+
+                   photoViewModel?.delete(photoViewModel?.photo?.value ?: Photo("", ""))
+                   findNavController().popBackStack()
+               }
+                true
+
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     override fun onPause() {
         super.onPause()
         val photo = photoViewModel?.photo?.value
-        if (photo != null && image_view.scale != 0f) {
+        if ( photo != null && image_view.scale != 0f) {
            val changePhoto = Photo(
                 photo.photoId,
                 photo.imageUrl,
                 image_view.scale,
                 image_view.center?.x ?: 0f,
-                image_view.center?.y ?: 0f
+                image_view.center?.y ?: 0f,
+               photo.position
             )
 
 
-            photoViewModel?.insert(changePhoto)
+            photoViewModel?.update(changePhoto)
             Log.d("djm", "photo insert ${changePhoto}")
         }
     }

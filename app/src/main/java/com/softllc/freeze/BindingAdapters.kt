@@ -18,6 +18,10 @@ package com.softllc.freeze
 
 import androidx.databinding.BindingAdapter
 import android.view.View
+import android.widget.ImageView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.softllc.freeze.data.Photo
 
 @BindingAdapter("isGone")
 fun bindIsGone(view: View, isGone: Boolean) {
@@ -27,3 +31,26 @@ fun bindIsGone(view: View, isGone: Boolean) {
         View.VISIBLE
     }
 }
+
+
+
+@BindingAdapter("isShown")
+fun bindIsShown(view: View, show: Boolean) {
+    view.visibility = if (!show) {
+        View.GONE
+    } else {
+        View.VISIBLE
+    }
+}
+
+@BindingAdapter("scaleImage")
+fun bindImageFromUrl(view: ImageView, photo: Photo?) {
+    if (photo != null) {
+        Glide.with(view.context)
+            .load(photo.imageUrl)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .thumbnail(1f)
+            .into(view)
+    }
+}
+

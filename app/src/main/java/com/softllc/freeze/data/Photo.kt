@@ -33,7 +33,8 @@ data class Photo(
     val imageUrl: String = "",
     val zoom: Float = 1f,
     val scrollX: Float = 0f,
-    val scrollY: Float = 0f
+    val scrollY: Float = 0f,
+    val position: Long = 0
 ) {
 
     /**
@@ -43,5 +44,5 @@ data class Photo(
     fun shouldBeWatered(since: Calendar, lastWateringDate: Calendar) =
         since > lastWateringDate.apply { add(DAY_OF_YEAR, wateringInterval) }
      */
-    override fun toString() = "$photoId $imageUrl $zoom $scrollX $scrollY"
+    override fun toString() = "$position $photoId $imageUrl $zoom $scrollX $scrollY "
 }

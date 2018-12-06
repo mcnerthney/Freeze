@@ -13,13 +13,20 @@ interface PhotoDao {
    //@Query("SELECT * FROM photos WHERE growZoneNumber = :growZoneNumber ORDER BY name")
     //fun getPlantsWithGrowZoneNumber(growZoneNumber: Int): LiveData<List<Plant>>
 
-    @Query("SELECT * FROM photos WHERE id = :photoId")
+    @Query("SELECT * FROM photos WHERE id = :photoId ")
     fun getPhoto(photoId: String): LiveData<Photo>
+
+    @Query("SELECT * FROM photos ORDER BY position DESC")
+    fun getAllPhotos(): LiveData<List<Photo>>
 
     @Insert(onConflict = REPLACE)
     fun insertAll(photos: List<Photo>)
 
     @Insert(onConflict = REPLACE)
     fun insert(photos: Photo)
+
+    @Delete
+    fun delete(photo: Photo)
+
 
 }

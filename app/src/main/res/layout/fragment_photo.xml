@@ -21,7 +21,7 @@
 
     <data>
         <variable
-                name="hasPhotos"
+                name="hasPlantings"
                 type="Boolean" />
     </data>
 
@@ -30,6 +30,17 @@
     <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+        
+        <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" >
+
+
+        <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+                android:id="@+id/image_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </RelativeLayout>
 
         <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/freeze_list"
@@ -38,32 +49,21 @@
                 android:clipToPadding="false"
                 android:paddingLeft="@dimen/margin_normal"
                 android:paddingRight="@dimen/margin_normal"
-                app:isGone="@{!hasPhotos}"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager">
+                app:isGone="@{!hasPlantings}"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
 
-        </androidx.recyclerview.widget.RecyclerView>
-
-           <TextView
+        />
+        <!--app:isGone="@{!hasPlantings}" -->
+        <!--tools:listitem="@layout/list_item_garden_planting"-->
+        <TextView
                 android:id="@+id/empty_freeze"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="1dp"
                 android:gravity="center"
-                android:text="The cache is empty"
-                app:isGone="@{hasPhotos}"
+                android:text="empty"
+                app:isGone="@{hasPlantings}"
                 android:textSize="24sp"
            />
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab"
-                style="@style/Widget.MaterialComponents.FloatingActionButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="@dimen/fab_margin"
-                android:tint="@android:color/white"
-                app:layout_anchor="@id/freeze_list"
-                app:layout_anchorGravity="bottom|end"
-                app:srcCompat="@drawable/ic_plus" />
-
 
     </FrameLayout>
 

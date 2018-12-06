@@ -15,16 +15,13 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <dimen name="fab_margin">16dp</dimen>
-    <dimen name="app_bar_height">200dp</dimen>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <dimen name="margin_normal">8dp</dimen>
-    <dimen name="margin_small">4dp</dimen>
+    <item
+        android:id="@+id/action_delete"
+        android:title="Delete"
+     />
 
-    <dimen name="photo_item_image_height">200dp</dimen>
 
-    <dimen name="navigation_drawer_header_height">192dp</dimen>
-    <dimen name="navigation_drawer_header_padding">16dp</dimen>
-    <dimen name="navigation_drawer_image_width">100dp</dimen>
-</resources>
+</menu>

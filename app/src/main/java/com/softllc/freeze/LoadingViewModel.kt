@@ -32,7 +32,7 @@ class LoadingViewModel(
        }
     }
 
-    val photo : LiveData<Photo> = _photo;
+    val photo : LiveData<Photo> = _photo
 
     fun setImageURI( imagePath: String ) {
         val changedPhoto = Photo(photoId,imagePath)

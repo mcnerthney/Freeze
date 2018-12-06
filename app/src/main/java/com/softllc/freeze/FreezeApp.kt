@@ -22,7 +22,7 @@ class FreezeApp : Application() {
         theFilter.addAction(Intent.ACTION_SCREEN_ON)
         theFilter.addAction(Intent.ACTION_SCREEN_OFF)
         theFilter.addAction(Intent.ACTION_USER_PRESENT)
-        registerReceiver(powerReceiver, theFilter);
+        registerReceiver(powerReceiver, theFilter)
     }
 
 
@@ -31,7 +31,7 @@ class FreezeApp : Application() {
         override fun onReceive(context: Context, intent: Intent) {
             Log.d("djm", "$intent")
             try {
-                val action = intent.getAction()
+                val action = intent.action
 
                 when (action) {
                     Intent.ACTION_SCREEN_ON, Intent.ACTION_SCREEN_OFF, Intent.ACTION_USER_PRESENT -> {

@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
@@ -74,10 +74,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        val factory = InjectorUtils.providePhotoViewModelFactory(this, "new")
-        photoViewModel = ViewModelProviders.of(this, factory)
-            .get(PhotoViewModel::class.java)
-
         val binding: ActivityMainBinding = DataBindingUtil.setContentView(
             this,
             R.layout.activity_main
@@ -91,14 +87,6 @@ class MainActivity : AppCompatActivity() {
 
         // Set up navigation menu
         binding.navigationView.setupWithNavController(navController)
-        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.add_photo -> launchGallery()
-            }
-            drawerLayout.closeDrawer(Gravity.LEFT)
-            true
-        }
-
 
         FreezeApp.locked.observe(this,  Observer { locked ->
             when (locked ) {
@@ -107,84 +95,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
-    private fun launchCamera () {
-        val camIntent = Intent("android.media.action.IMAGE_CAPTURE");
-        camIntent.setComponent(ComponentName("com.sec.android.app.camera", "com.sec.android.app.camera.Camera"));
-        startActivity(camIntent);
-
-    }
-
-
-    private fun launchGallery() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.addCategory(Intent.CATEGORY_OPENABLE)
-        intent.setType("image/*");
-        //intent.putExtra("crop", true);
-        //intent.putExtra("return-data", true);
-        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_GET_SINGLE_FILE);
-        drawerLayout.closeDrawers()
-    }
-
-
-    private fun cachePicture (data: Intent) {
-        runOnIoThread {
-            val selectedImage = data.data
-
-            // method 1
-            try {
-                val inputStream = contentResolver.openInputStream(selectedImage)
-                val cw = ContextWrapper(applicationContext)
-                val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
-                // Create imageDir
-                val mypath = File(directory, "profile.jpg")
-
-                val fos = FileOutputStream(mypath)
-                copy(inputStream, fos)
-
-                photoViewModel.setImageURI(mypath.absolutePath)
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-
-    fun copy(instream: InputStream, out: OutputStream) {
-        try {
-
-            try {
-                // Transfer bytes from in to out
-                val buf = ByteArray(1024)
-                var len = instream.read(buf)
-                while (len > 0) {
-                    out.write(buf, 0, len)
-                    len = instream.read(buf)
-                }
-            } finally {
-                out.close()
-            }
-        } finally {
-            instream.close()
-        }
-    }
-
-
-     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
-
-        if (requestCode == REQUEST_GET_SINGLE_FILE) {
-            if (resultCode == RESULT_OK) {
-                if (intent != null && data != null) {
-
-                    cachePicture(data)
-
-                 }
-            }
-            super.onActivityResult(requestCode, resultCode, data)
-        }
-
-    }
-
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
