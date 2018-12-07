@@ -23,6 +23,9 @@
         <variable
                 name="hasPhotos"
                 type="Boolean" />
+        <variable
+                name="keyguard"
+                type="Boolean" />
     </data>
 
 
@@ -62,7 +65,8 @@
                 android:tint="@android:color/white"
                 app:layout_anchor="@id/freeze_list"
                 app:layout_anchorGravity="bottom|end"
-                app:srcCompat="@drawable/ic_plus" />
+                app:srcCompat="@drawable/ic_plus"
+                app:isGone="@{keyguard}"/>
 
 
     </FrameLayout>

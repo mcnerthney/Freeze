@@ -20,50 +20,31 @@
         xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <variable
-                name="hasPlantings"
-                type="Boolean" />
-    </data>
 
+        <data>
+            <variable
+                    name="keyguard"
+                    type="Boolean"/>
+        </data>
+
+
+    </data>
 
 
     <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-        
+
         <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" >
-
-
-        <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-                android:id="@+id/image_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent">
+
+
+            <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+                    android:id="@+id/image_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
         </RelativeLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/freeze_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingLeft="@dimen/margin_normal"
-                android:paddingRight="@dimen/margin_normal"
-                app:isGone="@{!hasPlantings}"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-
-        />
-        <!--app:isGone="@{!hasPlantings}" -->
-        <!--tools:listitem="@layout/list_item_garden_planting"-->
-        <TextView
-                android:id="@+id/empty_freeze"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:gravity="center"
-                android:text="empty"
-                app:isGone="@{hasPlantings}"
-                android:textSize="24sp"
-           />
 
     </FrameLayout>
 

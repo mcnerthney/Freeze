@@ -20,12 +20,15 @@ import androidx.core.content.res.ResourcesCompat.getDrawableForDensity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.ORIENTATION_90
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.ORIENTATION_USE_EXIF
 import com.google.android.material.snackbar.Snackbar
+import com.softllc.freeze.FreezeApp
 import com.softllc.freeze.data.Photo
 import com.softllc.freeze.databinding.FragmentFreezeBinding
 import com.softllc.freeze.utilities.InjectorUtils
@@ -69,6 +72,10 @@ class FreezeFragment : Fragment() {
             launchGallery()
         }
 
+        FreezeApp.locked.observe(this,  Observer { locked ->
+            binding.keyguard = locked
+        })
+
 
         binding.freezeList.layoutManager = GridLayoutManager(activity, 2)
 
@@ -105,11 +112,12 @@ class FreezeFragment : Fragment() {
 
 
     private fun cachePicture (data: Intent) {
+        val photoId = UUID.randomUUID().toString()
         runOnIoThread {
             val selectedImage = data.data
 
 
-            val photoId = UUID.randomUUID().toString()
+
             // method 1
             try {
                 val inputStream = activity!!.contentResolver.openInputStream(selectedImage)
@@ -124,12 +132,16 @@ class FreezeFragment : Fragment() {
 
                 photoListViewModel?.addPhoto(photoId, mypath.absolutePath)
 
-                // navagate to photo fragment
 
             } catch (e: IOException) {
                 e.printStackTrace()
             }
         }
+
+        // navagate to photo fragment
+        val direction = FreezeFragmentDirections.actionFreezeFragmentToPhotoFragment(photoId)
+        findNavController().navigate(direction)
+
     }
 
 
@@ -165,7 +177,6 @@ class FreezeFragment : Fragment() {
         }
 
     }
-
 
 }
 

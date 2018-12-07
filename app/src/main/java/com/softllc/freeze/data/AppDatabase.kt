@@ -16,7 +16,7 @@ import com.softllc.freeze.SeedDatabaseWorker
 /**
  * The Room database for this app
  */
-@Database(entities = [Photo::class], version = 8, exportSchema = false)
+@Database(entities = [Photo::class], version = 9, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun photoDao(): PhotoDao
 

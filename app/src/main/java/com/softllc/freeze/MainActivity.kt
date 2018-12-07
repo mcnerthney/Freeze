@@ -87,7 +87,6 @@ class MainActivity : AppCompatActivity() {
 
         // Set up navigation menu
         binding.navigationView.setupWithNavController(navController)
-
         FreezeApp.locked.observe(this,  Observer { locked ->
             when (locked ) {
                 true -> appbar.visibility = GONE
@@ -99,12 +98,6 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 
-    override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
-    }
+
 }
 

@@ -32,7 +32,7 @@ import androidx.navigation.NavDirections
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.davemorrissey.labs.subscaleview.ImageSource
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.ORIENTATION_USE_EXIF
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.softllc.freeze.data.Photo
 import com.softllc.freeze.databinding.FragmentPhotoBinding
 import com.softllc.freeze.utilities.InjectorUtils
@@ -57,28 +57,21 @@ class PhotoFragment : Fragment() {
             .get(PhotoViewModel::class.java)
 
 
-
         val binding = FragmentPhotoBinding.inflate(inflater, container, false)
-        binding.hasPlantings = false
 
-        binding.imageView.orientation = ORIENTATION_USE_EXIF
         binding.imageView.maxScale = 40f
         photoViewModel?.photo?.observe(this, Observer { photo ->
 
-            if ( photo != null ) {
+            if (photo != null) {
+                binding.imageView.orientation = photo.rotate
                 binding.imageView.setImage(ImageSource.uri(photo.imageUrl))
                 binding.imageView.setScaleAndCenter(photo.zoom, PointF(photo.scrollX, photo.scrollY))
             }
 
-            //binding.imageView.setScrollPosition(photo.scrollX, photo.scrollY)
-            //binding.imageView.setZoom(photo.zoom)
             Log.d("djm", "photo observed ${photo}")
         })
 
 
-        // val fis = FileInputStream(File(localUri.path))
-        //binding.imageView.setImageURI(Uri.fromFile(File("/data/user/0/com.softllc.freeze/app_imageDir/profile.jpg")))
-        //binding.imageView.maxZoom = 10.0f
         setHasOptionsMenu(true)
 
         return binding.root
@@ -94,19 +87,36 @@ class PhotoFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         return when (item?.itemId) {
             R.id.action_delete -> {
-               if ( photoViewModel?.photo?.value != null ) {
-                   val cw = ContextWrapper(activity)
-                   val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
-                   // Create imageDir
-                   val mypath = File(directory, photoViewModel?.photo?.value?.imageUrl)
-                   mypath.delete()
+                if (photoViewModel?.photo?.value != null) {
+                    val cw = ContextWrapper(activity)
+                    val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
+                    // Create imageDir
+                    val mypath = File(directory, photoViewModel?.photo?.value?.imageUrl)
+                    mypath.delete()
 
-                   photoViewModel?.delete(photoViewModel?.photo?.value ?: Photo("", ""))
-                   findNavController().popBackStack()
-               }
+                    photoViewModel?.delete(photoViewModel?.photo?.value ?: Photo("", ""))
+                    findNavController().popBackStack()
+                }
                 true
 
             }
+            R.id.action_rotate -> {
+                val photo = photoViewModel?.photo?.value
+                if (photo != null) {
+                    photoViewModel?.rotate(
+                        when (photo.rotate) {
+                            -1 -> 90
+                            90 -> 180
+                            180 -> 270
+                            270 -> 0
+                            else -> -1
+                        }
+                    )
+                }
+
+                true
+            }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -114,38 +124,16 @@ class PhotoFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         val photo = photoViewModel?.photo?.value
-        if ( photo != null && image_view.scale != 0f) {
-           val changePhoto = Photo(
-                photo.photoId,
-                photo.imageUrl,
-                image_view.scale,
-                image_view.center?.x ?: 0f,
-                image_view.center?.y ?: 0f,
-               photo.position
+        if (photo != null && image_view.scale != 0f) {
+            val changePhoto = photo.copy(
+                zoom = image_view.scale,
+                scrollX = image_view.center?.x ?: 0f,
+                scrollY = image_view.center?.y ?: 0f
             )
-
-
             photoViewModel?.update(changePhoto)
-            Log.d("djm", "photo insert ${changePhoto}")
+            Log.d("djm", "photo rescale ${changePhoto}")
         }
     }
 }
-
-
-
-//
-//    private fun subscribeUi(adapter: GardenPlantingAdapter, binding: FragmentGardenBinding) {
-//        val factory = InjectorUtils.provideGardenPlantingListViewModelFactory(requireContext())
-//        val viewModel = ViewModelProviders.of(this, factory)
-//                .get(GardenPlantingListViewModel::class.java)
-//
-//        viewModel.gardenPlantings.observe(viewLifecycleOwner, Observer { plantings ->
-//            binding.hasPlantings = (plantings != null && plantings.isNotEmpty())
-//        })
-//
-//        viewModel.plantAndGardenPlantings.observe(viewLifecycleOwner, Observer { result ->
-//            if (result != null && result.isNotEmpty())
-//                adapter.submitList(result)
-//        })
 
 

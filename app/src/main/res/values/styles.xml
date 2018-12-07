@@ -24,7 +24,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="AppTheme" parent="BaseAppTheme"/>
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar"/>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>

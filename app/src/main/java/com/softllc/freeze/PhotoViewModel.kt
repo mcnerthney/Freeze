@@ -32,6 +32,12 @@ class PhotoViewModel(
         }
     }
 
+    fun rotate ( dir : Int ) {
+        val photo = photo.value
+        if ( photo != null ) {
+            update(photo.copy(rotate = dir))
+        }
+    }
 
     fun delete( photo: Photo ) {
         runOnIoThread {

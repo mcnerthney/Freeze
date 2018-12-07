@@ -23,20 +23,20 @@
     <fragment
             android:id="@+id/freeze_fragment"
             android:name="com.softllc.freeze.FreezeFragment"
-            android:label="Freeze Cache">
+            android:label="Photo Cache">
     <action
             android:id="@+id/action_freeze_fragment_to_photo_fragment"
             app:destination="@id/photo_fragment"
-            app:enterAnim="@anim/slide_in_right"
-            app:exitAnim="@anim/slide_out_left"
-            app:popEnterAnim="@anim/slide_in_left"
-            app:popExitAnim="@anim/slide_out_right" />
+            app:enterAnim="@anim/slide_in_bottom"
+            app:exitAnim="@anim/slide_out_top"
+            app:popEnterAnim="@anim/slide_in_top"
+            app:popExitAnim="@anim/slide_out_bottom" />
 
     </fragment>
     <fragment
             android:id="@+id/photo_fragment"
             android:name="com.softllc.freeze.PhotoFragment"
-            android:label="Frame Freeze"
+            android:label="Photo"
             tools:layout="@layout/fragment_photo">
         <argument
                 android:name="photoId"

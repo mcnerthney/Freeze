@@ -22,7 +22,7 @@ class PhotoListViewModel(
     val photos : LiveData<List<Photo>> = _photoList
 
     fun addPhoto(photoId: String, imageSrc: String) {
-        photoRepository.insert(Photo(photoId, imageSrc, position = Date().time))
+        photoRepository.insert(Photo(photoId, imageSrc, position = Date().time, rotate = -1))
     }
 
 }

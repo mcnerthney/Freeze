@@ -15,17 +15,8 @@
   ~ limitations under the License.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <item
-            android:id="@+id/action_delete"
-            android:title="Delete"
-    />
-    <item
-            android:id="@+id/action_rotate"
-            android:title="Rotate"
-    />
-
-
-</menu>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <translate android:fromXDelta="0%" android:toXDelta="0%"
+        android:fromYDelta="0%" android:toYDelta="-100%"
+        android:duration="700"/>
+</set>
