@@ -16,7 +16,7 @@ interface PhotoDao {
     @Query("SELECT * FROM photos WHERE id = :photoId ")
     fun getPhoto(photoId: String): LiveData<Photo>
 
-    @Query("SELECT * FROM photos ORDER BY position DESC")
+    @Query("SELECT * FROM photos ORDER BY position")
     fun getAllPhotos(): LiveData<List<Photo>>
 
     @Insert(onConflict = REPLACE)

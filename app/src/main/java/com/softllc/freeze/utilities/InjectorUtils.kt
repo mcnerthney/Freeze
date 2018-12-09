@@ -27,7 +27,7 @@ import com.softllc.freeze.data.PhotoRepository
  */
 object InjectorUtils {
 
-    private fun getPhotoRepository(context: Context): PhotoRepository {
+    fun getPhotoRepository(context: Context): PhotoRepository {
         return PhotoRepository.getInstance(AppDatabase.getInstance(context).photoDao())
     }
 

@@ -1,5 +1,6 @@
 package com.softllc.freeze
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,9 +33,9 @@ class PhotoAdapter : ListAdapter<Photo, PhotoAdapter.ViewHolder>(PhotoDiffCallba
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(
-            ListItemPhotoBinding.inflate(
-            LayoutInflater.from(parent.context), parent, false))
+        val binding =  ListItemPhotoBinding.inflate(
+            LayoutInflater.from(parent.context), parent, false)
+            return ViewHolder(binding)
     }
 
     private fun createOnClickListener(photoId: String): View.OnClickListener {
@@ -52,6 +53,7 @@ class PhotoAdapter : ListAdapter<Photo, PhotoAdapter.ViewHolder>(PhotoDiffCallba
             binding.apply {
                 clickListener = listener
                 photo = item
+                //photoSubsamplingImage.setOnClickListener(listener)
                 executePendingBindings()
             }
         }

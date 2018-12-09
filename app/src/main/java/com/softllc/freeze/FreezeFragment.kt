@@ -1,40 +1,24 @@
-
 package com.softllc.freeze
 
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
-import android.graphics.PointF
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.HorizontalScrollView
+import android.widget.LinearLayout.HORIZONTAL
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.core.content.res.ResourcesCompat.getDrawable
-import androidx.core.content.res.ResourcesCompat.getDrawableForDensity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.davemorrissey.labs.subscaleview.ImageSource
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.ORIENTATION_90
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView.ORIENTATION_USE_EXIF
-import com.google.android.material.snackbar.Snackbar
-import com.softllc.freeze.FreezeApp
-import com.softllc.freeze.data.Photo
 import com.softllc.freeze.databinding.FragmentFreezeBinding
 import com.softllc.freeze.utilities.InjectorUtils
+import com.softllc.freeze.utilities.ImageFile
 import com.softllc.freeze.utilities.runOnIoThread
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_freeze.*
 import java.io.*
 import java.util.*
 
@@ -55,13 +39,13 @@ class FreezeFragment : Fragment() {
             .get(PhotoListViewModel::class.java)
 
 
-       val binding = FragmentFreezeBinding.inflate(inflater, container, false)
+        val binding = FragmentFreezeBinding.inflate(inflater, container, false)
         val adapter = PhotoAdapter()
         binding.freezeList.adapter = adapter
 
         photoListViewModel?.photos?.observe(viewLifecycleOwner, Observer { photos ->
-            if (photos != null && photos.isNotEmpty()) {
-                binding.hasPhotos = true
+            if (photos != null) {
+                binding.hasPhotos = photos.isNotEmpty()
                 adapter.submitList(photos)
             } else {
                 binding.hasPhotos = false
@@ -72,30 +56,12 @@ class FreezeFragment : Fragment() {
             launchGallery()
         }
 
-        FreezeApp.locked.observe(this,  Observer { locked ->
+        FreezeApp.locked.observe(this, Observer { locked ->
             binding.keyguard = locked
         })
 
 
         binding.freezeList.layoutManager = GridLayoutManager(activity, 2)
-
-//
-//        binding.imageView.orientation = ORIENTATION_USE_EXIF
-//        binding.imageView.maxScale = 40f
-//        photoViewModel?.photo?.observe(this, Observer { photo ->
-//
-//            binding.imageView.setImage(ImageSource.uri(photo.imageUrl))
-//            binding.imageView.setScaleAndCenter(photo.zoom, PointF(photo.scrollX, photo.scrollY))
-//
-//            //binding.imageView.setScrollPosition(photo.scrollX, photo.scrollY)
-//            //binding.imageView.setZoom(photo.zoom)
-//            Log.d("djm", "photo observed ${photo}")
-//        })
-//
-//
-//        // val fis = FileInputStream(File(localUri.path))
-//        //binding.imageView.setImageURI(Uri.fromFile(File("/data/user/0/com.softllc.freeze/app_imageDir/profile.jpg")))
-//        //binding.imageView.maxZoom = 10.0f
 
         return binding.root
     }
@@ -111,75 +77,29 @@ class FreezeFragment : Fragment() {
     }
 
 
-    private fun cachePicture (data: Intent) {
-        val photoId = UUID.randomUUID().toString()
-        runOnIoThread {
-            val selectedImage = data.data
+    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
 
-
-
-            // method 1
-            try {
-                val inputStream = activity!!.contentResolver.openInputStream(selectedImage)
-                val cw = ContextWrapper(activity)
-                val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
-                // Create imageDir
-                val mypath = File(directory, photoId)
-
-                val fos = FileOutputStream(mypath)
-                copy(inputStream, fos)
-                fos.close()
-
-                photoListViewModel?.addPhoto(photoId, mypath.absolutePath)
-
-
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
-        }
-
-        // navagate to photo fragment
-        val direction = FreezeFragmentDirections.actionFreezeFragmentToPhotoFragment(photoId)
-        findNavController().navigate(direction)
-
-    }
-
-
-    fun copy(instream: InputStream, out: OutputStream) {
-        try {
-
-            try {
-                // Transfer bytes from in to out
-                val buf = ByteArray(1024)
-                var len = instream.read(buf)
-                while (len > 0) {
-                    out.write(buf, 0, len)
-                    len = instream.read(buf)
-                }
-            } finally {
-                out.close()
-            }
-        } finally {
-            instream.close()
-        }
-    }
-
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         if (requestCode == REQUEST_GET_SINGLE_IMAGE) {
             if (resultCode == AppCompatActivity.RESULT_OK) {
-                if ( data != null) {
-                    cachePicture(data)
+                if (intent != null) {
+                    val photoId = UUID.randomUUID().toString()
+                    runOnIoThread {
+                        val fileName = ImageFile(requireContext()).upload(photoId, intent.data?.toString() ?: "")
+                        photoListViewModel?.addPhoto(photoId, fileName)
+                    }
+                    // navigate to photo fragment
+                    val direction = FreezeFragmentDirections.actionFreezeFragmentToPhotoFragment(photoId)
+                    findNavController().navigate(direction)
+
                 }
             }
-            super.onActivityResult(requestCode, resultCode, data)
+            super.onActivityResult(requestCode, resultCode, intent)
         }
 
     }
 
 }
-
 
 
 //

@@ -37,14 +37,20 @@ import kotlinx.android.synthetic.main.activity_main.*
 import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.os.Build
+import android.os.Parcelable
+import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.WindowManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
+import com.softllc.freeze.data.Photo
+import com.softllc.freeze.utilities.ImageFile
 import com.softllc.freeze.utilities.InjectorUtils
 import com.softllc.freeze.utilities.runOnIoThread
 import java.io.*
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -52,14 +58,41 @@ class MainActivity : AppCompatActivity() {
     //private lateinit var drawerLayout: DrawerLayout
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
-    private lateinit var photoViewModel: PhotoViewModel
+    private lateinit var photoListViewModel: PhotoListViewModel
 
-    val REQUEST_GET_SINGLE_FILE = 101
+    private fun handleSendImage(intent: Intent) {
+        (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
+            Log.d("djm handleSendImage", it.toString())
+            val photoId = UUID.randomUUID().toString()
+            runOnIoThread {
+                val fileName = ImageFile(this).upload(photoId, it.toString())
+                photoListViewModel.addPhoto(photoId, fileName)
+            }
+            // navigate to photo fragment
+            //val direction = FreezeFragmentDirections.actionFreezeFragmentToPhotoFragment(photoId)
+            //navController.navigate(direction)
+        }
+    }
+
+    private fun handleSendMultipleImages(intent: Intent) {
+        intent.getParcelableArrayListExtra<Parcelable>(Intent.EXTRA_STREAM)?.let {
+            // Update UI to reflect multiple images being shared
+            runOnIoThread {
+                for (i in it.reversed()) {
+                    Log.d("djm handleSendMult", i.toString())
+                    val photoId = UUID.randomUUID().toString()
+
+                    val fileName = ImageFile(this).upload(photoId, i.toString())
+                    photoListViewModel.addPhoto(photoId, fileName)
+                }
+            }
+
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_USER
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
@@ -69,8 +102,9 @@ class MainActivity : AppCompatActivity() {
         } else {
             this.window.addFlags(
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
-                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON)
+                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+            )
         }
 
 
@@ -87,15 +121,71 @@ class MainActivity : AppCompatActivity() {
 
         // Set up navigation menu
         binding.navigationView.setupWithNavController(navController)
-        FreezeApp.locked.observe(this,  Observer { locked ->
-            when (locked ) {
+
+        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.delete_all -> deleteGallery()
+            }
+            drawerLayout.closeDrawer(Gravity.LEFT)
+            true
+        }
+
+        FreezeApp.locked.observe(this, Observer { locked ->
+            when (locked) {
                 true -> appbar.visibility = GONE
                 false -> appbar.visibility = VISIBLE
             }
         })
+
+        val factory = InjectorUtils.providePhotoListViewModelFactory(this)
+        photoListViewModel = ViewModelProviders.of(this, factory)
+            .get(PhotoListViewModel::class.java)
+        photoListViewModel.photos.observe(this, Observer { photos ->
+
+        })
+
+        when {
+            intent?.action == Intent.ACTION_SEND -> {
+                if (intent.type?.startsWith("image/") == true) {
+                    handleSendImage(intent) // Handle single image being sent
+                }
+            }
+            intent?.action == Intent.ACTION_SEND_MULTIPLE
+                    == true -> {
+                handleSendMultipleImages(intent) // Handle multiple images being sent
+            }
+            else -> {
+                // Handle other intents, such as being started from the home screen
+            }
+        }
+
     }
+
+    private fun deleteGallery() {
+        val photos = photoListViewModel.photos?.value
+        if (photos != null) {
+            runOnIoThread {
+                for (photo in photos) {
+                    File(photo.imageUrl).delete()
+                    InjectorUtils.getPhotoRepository(this).delete(photo)
+                }
+
+            }
+
+
+        }
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
     }
 
 

@@ -43,6 +43,7 @@ class PhotoFragment : Fragment() {
 
     var photoViewModel: PhotoViewModel? = null
 
+    var currentPhoto: Photo? = null
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -63,9 +64,14 @@ class PhotoFragment : Fragment() {
         photoViewModel?.photo?.observe(this, Observer { photo ->
 
             if (photo != null) {
-                binding.imageView.orientation = photo.rotate
-                binding.imageView.setImage(ImageSource.uri(photo.imageUrl))
-                binding.imageView.setScaleAndCenter(photo.zoom, PointF(photo.scrollX, photo.scrollY))
+                if (currentPhoto == null || currentPhoto != photo) {
+                    Log.d("djm", "photo set image and scale ${photo}")
+
+                    binding.imageView.orientation = photo.rotate
+                    binding.imageView.setImage(ImageSource.uri(photo.imageUrl))
+                    binding.imageView.setScaleAndCenter(photo.zoom, PointF(photo.scrollX, photo.scrollY))
+                    currentPhoto = photo
+                }
             }
 
             Log.d("djm", "photo observed ${photo}")
@@ -88,11 +94,6 @@ class PhotoFragment : Fragment() {
         return when (item?.itemId) {
             R.id.action_delete -> {
                 if (photoViewModel?.photo?.value != null) {
-                    val cw = ContextWrapper(activity)
-                    val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
-                    // Create imageDir
-                    val mypath = File(directory, photoViewModel?.photo?.value?.imageUrl)
-                    mypath.delete()
 
                     photoViewModel?.delete(photoViewModel?.photo?.value ?: Photo("", ""))
                     findNavController().popBackStack()
@@ -105,10 +106,10 @@ class PhotoFragment : Fragment() {
                 if (photo != null) {
                     photoViewModel?.rotate(
                         when (photo.rotate) {
-                            -1 -> 90
+                            -1 -> 0
+                            0 -> 90
                             90 -> 180
                             180 -> 270
-                            270 -> 0
                             else -> -1
                         }
                     )

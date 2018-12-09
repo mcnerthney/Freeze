@@ -19,16 +19,21 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools">
 
-    <data>
+
 
         <data>
             <variable
                     name="keyguard"
                     type="Boolean"/>
+
+            <variable
+                    name="photo"
+                    type="com.softllc.freeze.data.Photo"/>
+
         </data>
 
 
-    </data>
+
 
 
     <FrameLayout
@@ -40,11 +45,12 @@
                 android:layout_height="match_parent">
 
 
-            <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+          <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
                     android:id="@+id/image_view"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
-        </RelativeLayout>
+                    android:layout_height="match_parent"
+                    app:scaleSubImage="@{photo}"/>
+      </RelativeLayout>
 
     </FrameLayout>
 

@@ -5,6 +5,7 @@ import com.softllc.freeze.data.Photo
 
 import com.softllc.freeze.data.PhotoRepository
 import com.softllc.freeze.utilities.runOnIoThread
+import java.io.File
 
 class PhotoViewModel(
     private val photoRepository: PhotoRepository,
@@ -41,6 +42,7 @@ class PhotoViewModel(
 
     fun delete( photo: Photo ) {
         runOnIoThread {
+            File(photo.imageUrl).delete()
             photoRepository.delete(photo)
         }
         _photo.postValue(null)
