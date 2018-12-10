@@ -144,21 +144,36 @@ class MainActivity : AppCompatActivity() {
 
         })
 
-        when {
-            intent?.action == Intent.ACTION_SEND -> {
-                if (intent.type?.startsWith("image/") == true) {
-                    handleSendImage(intent) // Handle single image being sent
+        processIntent(intent)
+    }
+
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        processIntent(intent)
+    }
+
+    private fun processIntent(intent: Intent?) {
+        if (intent != null) {
+            when {
+                intent.action == Intent.ACTION_SEND -> {
+                    if (intent.type?.startsWith("image/") == true) {
+                        handleSendImage(intent) // Handle single image being sent
+                    }
+                }
+                intent.action == Intent.ACTION_SEND_MULTIPLE
+                        == true -> {
+                    handleSendMultipleImages(intent) // Handle multiple images being sent
+                }
+                else -> {
+                    // Handle other intents, such as being started from the home screen
                 }
             }
-            intent?.action == Intent.ACTION_SEND_MULTIPLE
-                    == true -> {
-                handleSendMultipleImages(intent) // Handle multiple images being sent
-            }
-            else -> {
-                // Handle other intents, such as being started from the home screen
-            }
+            intent.replaceExtras(Bundle());
+            intent.setAction("");
+            intent.setData(null);
+            intent.setFlags(0);
         }
-
     }
 
     private fun deleteGallery() {
