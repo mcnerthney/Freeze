@@ -54,19 +54,6 @@
                 app:isGone="@{hasPhotos}"
                 android:textSize="24sp"
            />
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/fab"
-                style="@style/Widget.MaterialComponents.FloatingActionButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|end"
-                android:layout_margin="@dimen/fab_margin"
-                android:tint="@android:color/white"
-                app:layout_anchor="@id/freeze_list"
-                app:layout_anchorGravity="bottom|end"
-                app:srcCompat="@drawable/ic_plus"
-                app:isGone="@{keyguard}"/>
-
 
     </FrameLayout>
 

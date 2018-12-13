@@ -41,6 +41,13 @@
         <argument
                 android:name="photoId"
                 app:argType="string" />
+
+        <action
+                android:id="@+id/action_photo_fragment_next"
+                app:destination="@id/photo_fragment"
+                app:launchSingleTop="true"
+        />
+
     </fragment>
 
  </navigation>

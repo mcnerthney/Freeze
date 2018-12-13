@@ -17,7 +17,6 @@
 package com.softllc.freeze.utilities
 
 import android.content.Context
-import com.softllc.freeze.PhotoListViewModelFactory
 import com.softllc.freeze.PhotoViewModelFactory
 import com.softllc.freeze.data.AppDatabase
 import com.softllc.freeze.data.PhotoRepository
@@ -40,27 +39,6 @@ object InjectorUtils {
         return PhotoViewModelFactory(repository, plantId)
     }
 
-    fun providePhotoListViewModelFactory(
-        context: Context
-    ): PhotoListViewModelFactory {
-        val repository = getPhotoRepository(context)
-        return PhotoListViewModelFactory(repository)
-    }
-    /*
 
-    fun providePlantListViewModelFactory(context: Context): PlantListViewModelFactory {
-        val repository = getPlantRepository(context)
-        return PlantListViewModelFactory(repository)
-    }
 
-    fun providePlantDetailViewModelFactory(
-        context: Context,
-        plantId: String
-    ): PlantDetailViewModelFactory {
-        return PlantDetailViewModelFactory(
-            getPlantRepository(context),
-                getGardenPlantingRepository(context), plantId)
-    }
-
-    */
 }

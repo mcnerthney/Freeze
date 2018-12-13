@@ -1,30 +1,11 @@
-/*
- * Copyright 2018 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package com.softllc.freeze
 
-import android.content.ComponentName
-import android.content.Context
+
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
-import android.view.Gravity
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GravityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -33,8 +14,6 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.softllc.freeze.databinding.ActivityMainBinding
-import kotlinx.android.synthetic.main.activity_main.*
-import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Parcelable
@@ -44,12 +23,11 @@ import android.view.View.VISIBLE
 import android.view.WindowManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.fragment.findNavController
-import com.softllc.freeze.data.Photo
+import com.softllc.freeze.analytic.Analytic
+import com.softllc.freeze.analytic.Analytic.LogAnalyticEvent
 import com.softllc.freeze.utilities.ImageFile
 import com.softllc.freeze.utilities.InjectorUtils
 import com.softllc.freeze.utilities.runOnIoThread
-import java.io.*
 import java.util.*
 
 
@@ -58,7 +36,7 @@ class MainActivity : AppCompatActivity() {
     //private lateinit var drawerLayout: DrawerLayout
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
-    private lateinit var photoListViewModel: PhotoListViewModel
+    private lateinit var photoListViewModel: PhotoViewModel
 
     private fun handleSendImage(intent: Intent) {
         (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
@@ -67,10 +45,8 @@ class MainActivity : AppCompatActivity() {
             runOnIoThread {
                 val fileName = ImageFile(this).upload(photoId, it.toString())
                 photoListViewModel.addPhoto(photoId, fileName)
+                LogAnalyticEvent(Analytic.Event.ADD_PHOTO, "copy_single")
             }
-            // navigate to photo fragment
-            //val direction = FreezeFragmentDirections.actionFreezeFragmentToPhotoFragment(photoId)
-            //navController.navigate(direction)
         }
     }
 
@@ -79,11 +55,11 @@ class MainActivity : AppCompatActivity() {
             // Update UI to reflect multiple images being shared
             runOnIoThread {
                 for (i in it.reversed()) {
-                    Log.d("djm handleSendMult", i.toString())
                     val photoId = UUID.randomUUID().toString()
 
                     val fileName = ImageFile(this).upload(photoId, i.toString())
                     photoListViewModel.addPhoto(photoId, fileName)
+                    LogAnalyticEvent(Analytic.Event.ADD_PHOTO, "copy_multiple")
                 }
             }
 
@@ -113,7 +89,7 @@ class MainActivity : AppCompatActivity() {
             R.layout.activity_main
         )
         navController = Navigation.findNavController(this, R.id.freeze_nav_fragment)
-        appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
+        appBarConfiguration = AppBarConfiguration(navController.graph)
 
         // Set up ActionBar
         setSupportActionBar(binding.toolbar)
@@ -122,27 +98,21 @@ class MainActivity : AppCompatActivity() {
         // Set up navigation menu
         binding.navigationView.setupWithNavController(navController)
 
-        binding.navigationView.setNavigationItemSelectedListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.delete_all -> deleteGallery()
-            }
-            drawerLayout.closeDrawer(Gravity.LEFT)
-            true
-        }
-
-        FreezeApp.locked.observe(this, Observer { locked ->
-            when (locked) {
-                true -> appbar.visibility = GONE
-                false -> appbar.visibility = VISIBLE
-            }
-        })
-
-        val factory = InjectorUtils.providePhotoListViewModelFactory(this)
+        val factory = InjectorUtils.providePhotoViewModelFactory(this, "")
         photoListViewModel = ViewModelProviders.of(this, factory)
-            .get(PhotoListViewModel::class.java)
+            .get(PhotoViewModel::class.java)
         photoListViewModel.photos.observe(this, Observer { photos ->
 
         })
+
+
+        FreezeApp.locked.observe(this, Observer { locked ->
+            when (locked) {
+                true -> binding.appbar.visibility = GONE
+                false -> binding.appbar.visibility = VISIBLE
+            }
+        })
+
 
         processIntent(intent)
     }
@@ -176,31 +146,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun deleteGallery() {
-        val photos = photoListViewModel.photos?.value
-        if (photos != null) {
-            runOnIoThread {
-                for (photo in photos) {
-                    File(photo.imageUrl).delete()
-                    InjectorUtils.getPhotoRepository(this).delete(photo)
-                }
-
-            }
-
-
-        }
-    }
 
     override fun onSupportNavigateUp(): Boolean {
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
-
-    override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
     }
 
 

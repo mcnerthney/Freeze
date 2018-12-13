@@ -6,17 +6,16 @@ import android.content.ContextWrapper
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import com.softllc.freeze.utilities.DATABASE_NAME
-import com.softllc.freeze.SeedDatabaseWorker
+import androidx.room.migration.Migration
+
+
 
 /**
  * The Room database for this app
  */
-@Database(entities = [Photo::class], version = 10, exportSchema = false)
+@Database(entities = [Photo::class], version = 2, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun photoDao(): PhotoDao
 
@@ -31,23 +30,23 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+
+
         // Create and pre-populate the database. See this article for more details:
         // https://medium.com/google-developers/7-pro-tips-for-room-fbadea4bfbd1#4785
         private fun buildDatabase(context: Context): AppDatabase {
+            val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+                override fun migrate(database: SupportSQLiteDatabase) {
+                    val cw = ContextWrapper(context)
+                    val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
+                    directory.delete()
+
+                }
+            }
+
             return Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
-                .fallbackToDestructiveMigration()
-                    .addCallback(object : RoomDatabase.Callback() {
-                        override fun onCreate(db: SupportSQLiteDatabase) {
-                            super.onCreate(db)
-
-                            val cw = ContextWrapper(context)
-                            val directory = cw.getDir("imageDir", Context.MODE_PRIVATE)
-                            directory.delete()
-
-                            val request = OneTimeWorkRequestBuilder<SeedDatabaseWorker>().build()
-                            WorkManager.getInstance().enqueue(request)
-                        }
-                    })
+                .fallbackToDestructiveMigrationOnDowngrade()
+                    .addMigrations(MIGRATION_1_2)
                     .build()
         }
     }

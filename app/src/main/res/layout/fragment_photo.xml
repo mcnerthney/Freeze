@@ -19,8 +19,6 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools">
 
-
-
         <data>
             <variable
                     name="keyguard"
@@ -33,9 +31,6 @@
         </data>
 
 
-
-
-
     <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -44,13 +39,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-
           <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
                     android:id="@+id/image_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:scaleSubImage="@{photo}"/>
       </RelativeLayout>
+
+    <!--    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/left"
+                style="@style/Widget.MaterialComponents.FloatingActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|left"
+                android:tint="@android:color/white"
+                app:layout_anchor="@id/freeze_list"
+                app:layout_anchorGravity="center_horizontal|left"
+                app:srcCompat="@drawable/ic_plus"
+                app:isGone="@{keyguard}"/>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/right"
+                style="@style/Widget.MaterialComponents.FloatingActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|right"
+                android:tint="@android:color/white"
+                app:layout_anchor="@id/freeze_list"
+                app:layout_anchorGravity="center_horizontal|left"
+                app:srcCompat="@drawable/ic_plus"
+                app:isGone="@{keyguard}"/>
+-->
 
     </FrameLayout>
 

@@ -15,17 +15,33 @@
   ~ limitations under the License.
   -->
 
+
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
             android:id="@+id/action_delete"
             android:title="Delete"
-    />
+            android:icon="@drawable/ic_delete"
+            android:visible="true"/>
     <item
             android:id="@+id/action_rotate"
             android:title="Rotate"
-    />
+            app:showAsAction="ifRoom"
+            android:icon="@drawable/ic_rotate" android:visible="false" android:checkable="false"
+            android:enabled="false"/>
+
+    <item
+            android:id="@+id/action_prev"
+            android:title="Prev"
+            app:showAsAction="ifRoom"
+          />
+
+    <item
+            android:id="@+id/action_next"
+            android:title="Next"
+            app:showAsAction="ifRoom"
+      />
 
 
 </menu>

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "14756080871",
+    "firebase_url": "https://photo-cache.firebaseio.com",
+    "project_id": "photo-cache",
+    "storage_bucket": "photo-cache.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:14756080871:android:a33295e538030eb3",
+        "android_client_info": {
+          "package_name": "com.softllc.freeze"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "14756080871-s44r66k2hs1tau8pddcplst226ao9n7c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8KpAQQ6a5_W7b82bpIrmtllVZZpGZqm8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
