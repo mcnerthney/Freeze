@@ -5,7 +5,6 @@ import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
@@ -14,7 +13,6 @@ class FreezeApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        //Fresco.initialize(applicationContext)
 
         val theFilter = IntentFilter()
         /** System Defined Broadcast  */
@@ -28,7 +26,6 @@ class FreezeApp : Application() {
     class BroadcastReceiver ( private val app : FreezeApp ) : android.content.BroadcastReceiver() {
 
         override fun onReceive(context: Context, intent: Intent) {
-            Log.d("djm", "$intent")
             try {
                 val action = intent.action
 
@@ -54,7 +51,5 @@ class FreezeApp : Application() {
         private var _locked = MutableLiveData<Boolean>()
         var locked : LiveData<Boolean> = _locked
     }
-
-
 
 }

@@ -24,14 +24,6 @@ class PhotoViewModel(
         _photo.addSource(photoRepository.getPhoto(photoId), _photo::setValue)
     }
 
-
-    fun setImageURI( imagePath: String ) {
-        val changedPhoto = Photo(photoId,imagePath)
-        photoRepository.insert(changedPhoto)
-        _photo.postValue(changedPhoto)
-    }
-
-
     fun update( photo: Photo ) {
         runOnIoThread {
             photoRepository.insert(photo)

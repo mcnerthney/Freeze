@@ -17,7 +17,6 @@ import com.softllc.freeze.databinding.ActivityMainBinding
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Parcelable
-import android.util.Log
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.WindowManager
@@ -40,7 +39,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleSendImage(intent: Intent) {
         (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
-            Log.d("djm handleSendImage", it.toString())
             val photoId = UUID.randomUUID().toString()
             runOnIoThread {
                 val fileName = ImageFile(this).upload(photoId, it.toString())
@@ -52,7 +50,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleSendMultipleImages(intent: Intent) {
         intent.getParcelableArrayListExtra<Parcelable>(Intent.EXTRA_STREAM)?.let {
-            // Update UI to reflect multiple images being shared
             runOnIoThread {
                 for (i in it.reversed()) {
                     val photoId = UUID.randomUUID().toString()
@@ -73,9 +70,7 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             setShowWhenLocked(true)
             setTurnScreenOn(true)
-            //val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-            //keyguardManager.requestDismissKeyguard(this, null)
-        } else {
+         } else {
             this.window.addFlags(
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
                         WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
@@ -131,8 +126,7 @@ class MainActivity : AppCompatActivity() {
                         handleSendImage(intent) // Handle single image being sent
                     }
                 }
-                intent.action == Intent.ACTION_SEND_MULTIPLE
-                        == true -> {
+                intent.action == Intent.ACTION_SEND_MULTIPLE -> {
                     handleSendMultipleImages(intent) // Handle multiple images being sent
                 }
                 else -> {

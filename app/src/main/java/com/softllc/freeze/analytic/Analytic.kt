@@ -1,12 +1,8 @@
 package com.softllc.freeze.analytic
 
-
-import android.content.Context
 import com.google.firebase.analytics.FirebaseAnalytics
+import android.content.Context
 import android.os.Bundle
-
-
-
 
 object Analytic {
      enum class Event{

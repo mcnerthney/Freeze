@@ -1,25 +1,9 @@
-/*
- * Copyright 2018 Google LLC
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package com.softllc.freeze
 
 
 import android.graphics.PointF
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -44,8 +28,6 @@ class PhotoFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         photoId = PhotoFragmentArgs.fromBundle(arguments).photoId
-
-        Log.d("djm", "photofragment oncreateview")
         val activity = requireActivity()
         val factory = InjectorUtils.providePhotoViewModelFactory(activity, photoId)
         photoViewModel = ViewModelProviders.of(this, factory)
@@ -59,7 +41,6 @@ class PhotoFragment : Fragment() {
 
             if (photo != null) {
                 if (currentPhoto == null || currentPhoto != photo) {
-                    Log.d("djm", "photo set image and scale ${photo}")
 
                     binding.imageView.orientation = photo.rotate
                     binding.imageView.setImage(ImageSource.uri(photo.imageUrl))
@@ -69,7 +50,6 @@ class PhotoFragment : Fragment() {
                 }
             }
 
-            Log.d("djm", "photo observed ${photo}")
         })
         photoViewModel?.photos?.observe(this, Observer { photo ->
             setMenuItems()
@@ -196,7 +176,7 @@ class PhotoFragment : Fragment() {
             var last : Photo? = null
             for ( p in photos ) {
                 if ( p.photoId == photoId) {
-                    return last?.photoId ?: null
+                    return last?.photoId
                 }
                 last = p
             }
@@ -218,7 +198,6 @@ class PhotoFragment : Fragment() {
             if ( !changePhoto.equals(photo)) {
                 context?.LogAnalyticEvent(Analytic.Event.SCALE_PHOTO)
                 photoViewModel?.update(changePhoto)
-                Log.d("djm", "photo rescale ${changePhoto}")
             }
         }
     }

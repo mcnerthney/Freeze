@@ -15,7 +15,7 @@ import androidx.room.migration.Migration
 /**
  * The Room database for this app
  */
-@Database(entities = [Photo::class], version = 2, exportSchema = false)
+@Database(entities = [Photo::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun photoDao(): PhotoDao
 

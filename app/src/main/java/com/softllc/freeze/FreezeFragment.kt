@@ -38,7 +38,7 @@ class FreezeFragment : Fragment() {
         val adapter = PhotoAdapter()
         binding.freezeList.adapter = adapter
 
-        photoListViewModel?.photos?.observe(viewLifecycleOwner, Observer { photos ->
+        photoListViewModel.photos.observe(viewLifecycleOwner, Observer { photos ->
             if (photos != null) {
                 binding.hasPhotos = photos.isNotEmpty()
                 adapter.submitList(photos)
