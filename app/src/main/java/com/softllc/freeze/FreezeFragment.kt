@@ -13,7 +13,7 @@ import com.softllc.freeze.analytic.Analytic
 import com.softllc.freeze.analytic.Analytic.LogAnalyticEvent
 import com.softllc.freeze.databinding.FragmentFreezeBinding
 import com.softllc.freeze.utilities.InjectorUtils
-import com.softllc.freeze.utilities.ImageFile
+import com.softllc.freeze.utilities.FileUtils
 import com.softllc.freeze.utilities.runOnIoThread
 import java.util.*
 
@@ -99,7 +99,7 @@ class FreezeFragment : Fragment() {
                 if (intent != null) {
                     val photoId = UUID.randomUUID().toString()
                     runOnIoThread {
-                        val fileName = ImageFile(requireContext()).upload(photoId, intent.data?.toString() ?: "")
+                        val fileName = FileUtils(requireContext()).upload(photoId, intent.data?.toString() ?: "")
                         photoListViewModel.addPhoto(photoId, fileName)
                         context?.LogAnalyticEvent(Analytic.Event.ADD_PHOTO, "get_single")
                     }

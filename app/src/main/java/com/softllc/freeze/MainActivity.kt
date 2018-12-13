@@ -24,7 +24,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.softllc.freeze.analytic.Analytic
 import com.softllc.freeze.analytic.Analytic.LogAnalyticEvent
-import com.softllc.freeze.utilities.ImageFile
+import com.softllc.freeze.utilities.FileUtils
 import com.softllc.freeze.utilities.InjectorUtils
 import com.softllc.freeze.utilities.runOnIoThread
 import java.util.*
@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
             val photoId = UUID.randomUUID().toString()
             runOnIoThread {
-                val fileName = ImageFile(this).upload(photoId, it.toString())
+                val fileName = FileUtils(this).upload(photoId, it.toString())
                 photoListViewModel.addPhoto(photoId, fileName)
                 LogAnalyticEvent(Analytic.Event.ADD_PHOTO, "copy_single")
             }
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
                 for (i in it.reversed()) {
                     val photoId = UUID.randomUUID().toString()
 
-                    val fileName = ImageFile(this).upload(photoId, i.toString())
+                    val fileName = FileUtils(this).upload(photoId, i.toString())
                     photoListViewModel.addPhoto(photoId, fileName)
                     LogAnalyticEvent(Analytic.Event.ADD_PHOTO, "copy_multiple")
                 }
