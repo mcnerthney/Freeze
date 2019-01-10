@@ -47,8 +47,10 @@ class PhotoViewModel(
 
     }
 
-    fun addPhoto(photoId: String, imageSrc: String) {
-        photoRepository.insert(Photo(photoId, imageSrc, position = Date().time, rotate = -1))
+    fun addPhoto(photoId: String, imageSrc: String) : Photo {
+        val photo = Photo(photoId, imageSrc, position = Date().time, rotate = -1)
+        photoRepository.insert(photo)
+        return photo
     }
 
     fun deleteAll() {

@@ -28,18 +28,21 @@
             android:id="@+id/action_rotate"
             android:title="Rotate"
             app:showAsAction="ifRoom"
-            android:icon="@drawable/ic_rotate" android:visible="false" android:checkable="false"
+            android:icon="@drawable/ic_rotate"
+            android:visible="false" android:checkable="false"
             android:enabled="false"/>
 
     <item
             android:id="@+id/action_prev"
             android:title="Prev"
+            android:icon="@drawable/left_button"
             app:showAsAction="ifRoom"
           />
 
     <item
             android:id="@+id/action_next"
             android:title="Next"
+            android:icon="@drawable/right_button"
             app:showAsAction="ifRoom"
       />
 

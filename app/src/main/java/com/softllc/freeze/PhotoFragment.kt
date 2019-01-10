@@ -140,11 +140,10 @@ class PhotoFragment : Fragment() {
                 val id = prevPhotoId()
                 if (id != null) {
                     // navigate to photo fragment
-                    val direction = PhotoFragmentDirections.ActionPhotoFragmentNext(id)
+                    val direction = PhotoFragmentDirections.ActionPhotoFragmentPrev(id)
                     findNavController().navigate(direction)
 
                 }
-
                 true
             }
 

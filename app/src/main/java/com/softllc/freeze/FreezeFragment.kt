@@ -99,8 +99,9 @@ class FreezeFragment : Fragment() {
                 if (intent != null) {
                     val photoId = UUID.randomUUID().toString()
                     runOnIoThread {
-                        val fileName = FileUtils(requireContext()).upload(photoId, intent.data?.toString() ?: "")
-                        photoListViewModel.addPhoto(photoId, fileName)
+                        val photo = photoListViewModel.addPhoto(photoId, "")
+                        val filename = FileUtils(requireContext()).upload(photoId, intent.data?.toString() ?: "")
+                        photoListViewModel.update(photo.copy(imageUrl = filename))
                         context?.LogAnalyticEvent(Analytic.Event.ADD_PHOTO, "get_single")
                     }
                     // navigate to photo fragment
