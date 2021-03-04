@@ -2,6 +2,7 @@
 /*/build/
 app/release/
 app/google-services.json
+/build
 
 # Crashlytics configuations
 com_crashlytics_export_strings.xml
