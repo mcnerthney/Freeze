@@ -9,9 +9,11 @@ import java.io.File
 import java.util.*
 
 class PhotoViewModel(
-    private val photoRepository: PhotoRepository,
-    private val photoId: String
-) : ViewModel() {
+   ) : ViewModel() {
+
+
+    private var photoRepository: PhotoRepository? = null
+    private var photoId: String? = null
 
     private val _photoList = MediatorLiveData<List<Photo>>()
     private val _photo = MediatorLiveData<Photo>()
@@ -20,13 +22,13 @@ class PhotoViewModel(
     val photo : LiveData<Photo> = _photo
 
     init {
-        _photoList.addSource(photoRepository.getAllPhotos(), _photoList::setValue)
-        _photo.addSource(photoRepository.getPhoto(photoId), _photo::setValue)
+     //   _photoList.addSource(photoRepository.getAllPhotos(), _photoList::setValue)
+     //   _photo.addSource(photoRepository.getPhoto(photoId?:""), _photo::setValue)
     }
 
     fun update( photo: Photo ) {
         runOnIoThread {
-            photoRepository.insert(photo)
+            photoRepository?.insert(photo)
             _photo.postValue(photo)
         }
     }
@@ -41,7 +43,7 @@ class PhotoViewModel(
     fun delete( photo: Photo ) {
         runOnIoThread {
             File(photo.imageUrl).delete()
-            photoRepository.delete(photo)
+            photoRepository?.delete(photo)
         }
         _photo.postValue(null)
 
@@ -49,7 +51,7 @@ class PhotoViewModel(
 
     fun addPhoto(photoId: String, imageSrc: String) : Photo {
         val photo = Photo(photoId, imageSrc, position = Date().time, rotate = -1)
-        photoRepository.insert(photo)
+        photoRepository?.insert(photo)
         return photo
     }
 
@@ -59,7 +61,7 @@ class PhotoViewModel(
             runOnIoThread {
                 for (photo in photos) {
                     File(photo.imageUrl).delete()
-                    photoRepository.delete(photo)
+                    photoRepository?.delete(photo)
                 }
             }
         }

@@ -1,6 +1,5 @@
 package com.softllc.freeze.analytic
 
-import com.google.firebase.analytics.FirebaseAnalytics
 import android.content.Context
 import android.os.Bundle
 
@@ -21,7 +20,7 @@ object Analytic {
             bundle = Bundle()
             bundle.putString("app_context", eventContext)
         }
-        FirebaseAnalytics.getInstance(this).logEvent(event.name.toLowerCase(),bundle)
+        //FirebaseAnalytics.getInstance(this).logEvent(event.name.toLowerCase(),bundle)
     }
 }
 

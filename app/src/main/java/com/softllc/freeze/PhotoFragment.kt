@@ -6,8 +6,8 @@ import android.graphics.PointF
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.softllc.freeze.analytic.Analytic.LogAnalyticEvent
@@ -18,7 +18,7 @@ import com.softllc.freeze.utilities.InjectorUtils
 
 class PhotoFragment : Fragment() {
 
-    var photoViewModel: PhotoViewModel? = null
+    val photoViewModel: PhotoViewModel by viewModels()
     lateinit var binding: FragmentPhotoBinding
     lateinit var photoId: String
     var currentPhoto: Photo? = null
@@ -27,17 +27,13 @@ class PhotoFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        photoId = PhotoFragmentArgs.fromBundle(arguments).photoId
+        photoId = PhotoFragmentArgs.fromBundle(requireArguments()).photoId
         val activity = requireActivity()
-        val factory = InjectorUtils.providePhotoViewModelFactory(activity, photoId)
-        photoViewModel = ViewModelProviders.of(this, factory)
-            .get(PhotoViewModel::class.java)
-
 
         binding = FragmentPhotoBinding.inflate(inflater, container, false)
 
         binding.imageView.maxScale = 40f
-        photoViewModel?.photo?.observe(this, Observer { photo ->
+        photoViewModel?.photo?.observe(viewLifecycleOwner, Observer { photo ->
 
             if (photo != null) {
                 if (currentPhoto == null || currentPhoto != photo) {
@@ -51,7 +47,7 @@ class PhotoFragment : Fragment() {
             }
 
         })
-        photoViewModel?.photos?.observe(this, Observer { photo ->
+        photoViewModel?.photos?.observe(viewLifecycleOwner, Observer { photo ->
             setMenuItems()
         })
 
@@ -60,7 +56,7 @@ class PhotoFragment : Fragment() {
         return binding.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater?.inflate(R.menu.menu_photo, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
@@ -68,7 +64,7 @@ class PhotoFragment : Fragment() {
     var menuItemNext : MenuItem? = null
     var menuItemPrev : MenuItem? = null
 
-    override fun onPrepareOptionsMenu(menu: Menu?) {
+    override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         menuItemNext = menu?.findItem(R.id.action_next)
         menuItemPrev = menu?.findItem(R.id.action_prev)
@@ -82,7 +78,7 @@ class PhotoFragment : Fragment() {
     }
 
     @Suppress("DEPRECATION")
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item?.itemId) {
             R.id.action_delete -> {
                 context?.LogAnalyticEvent(Analytic.Event.DELETE_PHOTO)
@@ -99,7 +95,7 @@ class PhotoFragment : Fragment() {
                         findNavController().popBackStack()
                     }
                     else {
-                        val direction = PhotoFragmentDirections.ActionPhotoFragmentNext(next)
+                        val direction = PhotoFragmentDirections.actionPhotoFragmentNext(next)
                         findNavController().navigate(direction)
                     }
                 }
@@ -128,7 +124,7 @@ class PhotoFragment : Fragment() {
                 val id = nextPhotoId()
                 if (id != null) {
                     // navigate to photo fragment
-                    val direction = PhotoFragmentDirections.ActionPhotoFragmentNext(id)
+                    val direction = PhotoFragmentDirections.actionPhotoFragmentNext(id)
                     findNavController().navigate(direction)
 
                 }
@@ -140,7 +136,7 @@ class PhotoFragment : Fragment() {
                 val id = prevPhotoId()
                 if (id != null) {
                     // navigate to photo fragment
-                    val direction = PhotoFragmentDirections.ActionPhotoFragmentPrev(id)
+                    val direction = PhotoFragmentDirections.actionPhotoFragmentPrev(id)
                     findNavController().navigate(direction)
 
                 }

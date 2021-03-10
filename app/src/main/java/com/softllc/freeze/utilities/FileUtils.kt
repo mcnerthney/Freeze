@@ -17,7 +17,7 @@ class FileUtils(private var context: Context) {
         try {
             val inputStream = context.contentResolver.openInputStream(Uri.parse(inPath))
             val fos = FileOutputStream(mypath)
-            copy(inputStream, fos)
+            copy(inputStream!!, fos)
             fos.close()
 
 

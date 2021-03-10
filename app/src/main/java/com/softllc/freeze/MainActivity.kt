@@ -20,8 +20,9 @@ import android.os.Parcelable
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.WindowManager
+import androidx.activity.viewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.softllc.freeze.analytic.Analytic
 import com.softllc.freeze.analytic.Analytic.LogAnalyticEvent
 import com.softllc.freeze.utilities.FileUtils
@@ -35,8 +36,7 @@ class MainActivity : AppCompatActivity() {
     //private lateinit var drawerLayout: DrawerLayout
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var navController: NavController
-    private lateinit var photoListViewModel: PhotoViewModel
-
+    val photoListViewModel: PhotoViewModel by viewModels()
     private fun handleSendImage(intent: Intent) {
         (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
             val photoId = UUID.randomUUID().toString()
@@ -93,9 +93,6 @@ class MainActivity : AppCompatActivity() {
         // Set up navigation menu
         binding.navigationView.setupWithNavController(navController)
 
-        val factory = InjectorUtils.providePhotoViewModelFactory(this, "")
-        photoListViewModel = ViewModelProviders.of(this, factory)
-            .get(PhotoViewModel::class.java)
         photoListViewModel.photos.observe(this, Observer { photos ->
 
         })

@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.softllc.freeze.analytic.Analytic
@@ -19,7 +19,7 @@ import java.util.*
 
 class FreezeFragment : Fragment() {
 
-    lateinit var photoListViewModel: PhotoViewModel
+    val photoListViewModel: PhotoViewModel by viewModels()
     val REQUEST_GET_SINGLE_IMAGE = 101
 
     override fun onCreateView(
@@ -29,10 +29,6 @@ class FreezeFragment : Fragment() {
     ): View? {
 
         val activity = requireActivity()
-        val factory = InjectorUtils.providePhotoViewModelFactory(activity, "")
-        photoListViewModel = ViewModelProviders.of(this, factory)
-            .get(PhotoViewModel::class.java)
-
 
         val binding = FragmentFreezeBinding.inflate(inflater, container, false)
         val adapter = PhotoAdapter()
@@ -47,7 +43,7 @@ class FreezeFragment : Fragment() {
             }
         })
 
-        FreezeApp.locked.observe(this, Observer { locked ->
+        FreezeApp.locked.observe(viewLifecycleOwner, Observer { locked ->
             binding.keyguard = locked
         })
 
@@ -59,13 +55,13 @@ class FreezeFragment : Fragment() {
         return binding.root
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater?.inflate(R.menu.menu_freeze, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
 
     @Suppress("DEPRECATION")
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item?.itemId) {
             R.id.action_delete -> {
                 photoListViewModel.deleteAll()
